@@ -10,7 +10,7 @@ function addPatient(){
     const condition = document.getElementById("condition").value;
 
     if(name && age && gender && condition){
-        patients.psuh({name, gender: gender.value, age, condition});
+        patients.push({name, gender: gender.value, age, condition});
         resetForm();
         generateReport();
     }
@@ -24,19 +24,19 @@ function addPatient(){
 function generateReport(){
 const numPatients = patients.length;
 const conditionsCount = {
-    diabetes: 0,
-    thyroid:0 ,
+    Diabetes: 0,
+    Thyroid:0 ,
     "High Blood Pressure": 0,
 };
 const genderConditionsCount = {
     Male: {
-        diabetes: 0,
-        thyroid: 0,
+        Diabetes: 0,
+        Thyroid: 0,
         "High Blood Pressure":0,
     },
     Female: {
-        diabetes: 0,
-        thyroid: 0,
+        Diabetes: 0,
+        Thyroid: 0,
         "High Blood Pressure":0,
     },
 };
@@ -57,4 +57,34 @@ report.innerHTML = `Number of patients: ${numPatients}<br><br>`;
             }
         }
 }
+function searchCondition(){
+const input = document.getElementById("conditionInput").value.toLowerCase();
+const resultDiv = document.getElementById('result');
+resultDiv.innerHTML = '';
+fetch('health_analysis.json')
+.then(response =>response.json())
+.then(data =>{
+const condition = data.conditions.find(item => item.name.toLowerCase() === input);
+if (condition){
+    const symptoms = condition.symptoms.join(',');
+    const prevention = condition.prevention.join(',');
+    const treatment = condition.treatment;
+
+    resultDiv.innerHTML += `<h2>${condition.name}</h2>`;
+	resultDiv.innerHTML += `<img src="${condition.imagesrc}" alt="hjh">`;
+
+	resultDiv.innerHTML += `<p><strong>Symptoms:</strong> ${symptoms}</p>`;
+	resultDiv.innerHTML += `<p><strong>Prevention:</strong> ${prevention}</p>`;
+	resultDiv.innerHTML += `<p><strong>Treatment:</strong> ${treatment}</p>`
+}
+else{
+    resultDiv = 'Condition not found.';
+}
+})
+.catch(error =>{
+    console.error('Error:', error);
+			resultDiv.innerHTML = 'An error occurred while fetching data.';
+});
+}
+btnSearch.addEventListener('click', searchCondition);
 addPatientButton.addEventListener("click", addPatient);
